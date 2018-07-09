@@ -1,13 +1,23 @@
 package lib
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"reflect"
 	"strings"
 	"time"
 )
 
-func QuetoKey(v interface{}) []string {
+const (
+	tableName   = "company"
+	timeFormart = "2006-01-02 15:04:05"
+	salt        = "zhangjun"
+)
+
+type JsonTime time.Time
+
+func QuoteKey(v interface{}) []string {
 	fileds := []string{}
 	rt := reflect.TypeOf(v)
 	num := rt.NumField()
@@ -20,22 +30,16 @@ func QuetoKey(v interface{}) []string {
 	return fileds
 }
 
-const (
-	tableName   = "company"
-	timeFormart = "2006-01-02 15:04:05"
-)
-
-type JsonTime time.Time
-
 func (t *JsonTime) UnmarshalJSON(data []byte) (err error) {
-	//
+	// 将字符串转为Time类型
 	now, err := time.ParseInLocation(`"`+timeFormart+`"`, string(data), time.Local)
+	// 将Time强转成 JsonTime 类型
 	*t = JsonTime(now)
 	fmt.Println("---------t:", &*t)
 	return err
 }
 
-func QuetoValue(v interface{}) []interface{} {
+func QuoteValue(v interface{}) []interface{} {
 	values := []interface{}{}
 	rv := reflect.Indirect(reflect.ValueOf(v))
 	typ := reflect.TypeOf(v)
@@ -59,6 +63,27 @@ func QuetoValue(v interface{}) []interface{} {
 	return values
 }
 
+// quote colNames, placeholders, colValues
+func Quote(v interface{}) ([]string, []string, []interface{}) {
+	var placeholders []string
+	colNames := QuoteKey(v)
+	colValues := QuoteValue(v)
+	for _, _ = range colNames {
+		placeholders = append(placeholders, "?")
+	}
+	return colNames, placeholders, colValues
+}
+
 func join(colNames []string) string {
 	return strings.Join(colNames, ", ")
+}
+
+// md5加盐
+func Md5Salt(s string) string {
+	h := md5.New()
+	h.Write([]byte(s))
+	h.Write([]byte(salt))
+	st := h.Sum(nil)
+	// 16进制转成字符串
+	return hex.EncodeToString(st)
 }

@@ -21,6 +21,11 @@ type Model struct {
 	TableName string
 }
 
+type Transaction struct {
+	Sql    string
+	Values []interface{}
+}
+
 func (M *Model) Open() *Model {
 	db, err := sql.Open("mysql", "root@tcp(127.0.0.1:3306)/go_manager")
 	//如下是创建pool
@@ -37,8 +42,8 @@ func (M *Model) Open() *Model {
 
 func (M *Model) Create(v interface{}) (sql.Result, error) {
 	var placeholders []string
-	colNames := lib.QuetoKey(v)
-	colValues := lib.QuetoValue(v)
+	colNames := lib.QuoteKey(v)
+	colValues := lib.QuoteValue(v)
 	for _, _ = range colNames {
 		placeholders = append(placeholders, "?")
 	}
@@ -50,4 +55,39 @@ func (M *Model) Create(v interface{}) (sql.Result, error) {
 	res, err := M.db.Exec(sqlStr, colValues...)
 	defer M.db.Close()
 	return res, err
+}
+
+// 回滚
+func clearTransaction(tx *sql.Tx) error {
+	err := tx.Rollback()
+	if err != sql.ErrTxDone && err != nil {
+		return err
+	}
+	return nil
+}
+
+func (M *Model) Transaction(transaction []Transaction) error {
+	tx, err := M.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer M.db.Close()
+	defer clearTransaction(tx)
+	for _, t := range transaction {
+		stmt, err := tx.Prepare(t.Sql)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+		_, err = stmt.Exec(t.Values...)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	return nil
 }

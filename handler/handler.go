@@ -38,4 +38,16 @@ func (se StatusError) HandleError(w http.ResponseWriter) {
 	if err := json.NewEncoder(w).Encode(se); err != nil {
 		panic(err)
 	}
+	return
+	//panic(se.Error())
+}
+
+//正确返回
+
+func HandleOk(w http.ResponseWriter, v interface{}) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	//http.Error(w, se.Error(), se.Status())
+	if err := json.NewEncoder(w).Encode(v); err != nil {
+		panic(err)
+	}
 }
