@@ -31,7 +31,6 @@ func (se StatusError) ErrJson() {
 
 //错误处理
 func (se StatusError) HandleError(w http.ResponseWriter) {
-	fmt.Println(1234)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	fmt.Println("-------", se.Error())
 	//http.Error(w, se.Error(), se.Status())

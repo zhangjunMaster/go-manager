@@ -26,7 +26,6 @@ func QuoteKey(v interface{}) []string {
 		fieldName := f.Name //获取struct的key值
 		fileds = append(fileds, fmt.Sprintf("%v%v%v", "`", fieldName, "`"))
 	}
-	fmt.Printf("%+v", fileds)
 	return fileds
 }
 
@@ -35,7 +34,6 @@ func (t *JsonTime) UnmarshalJSON(data []byte) (err error) {
 	now, err := time.ParseInLocation(`"`+timeFormart+`"`, string(data), time.Local)
 	// 将Time强转成 JsonTime 类型
 	*t = JsonTime(now)
-	fmt.Println("---------t:", &*t)
 	return err
 }
 
