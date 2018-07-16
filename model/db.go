@@ -17,7 +17,7 @@ var (
 )
 
 type Model struct {
-	db        *sql.DB
+	DB        *sql.DB
 	TableName string
 }
 
@@ -36,7 +36,7 @@ func (M *Model) Open() *Model {
 	if err != nil {
 		panic(err)
 	}
-	M.db = db
+	M.DB = db
 	return M
 }
 
@@ -52,8 +52,8 @@ func (M *Model) Create(v interface{}) (sql.Result, error) {
 		strings.Join(colNames, ", "),
 		strings.Join(placeholders, ", "))
 	fmt.Println(sqlStr, colValues)
-	res, err := M.db.Exec(sqlStr, colValues...)
-	defer M.db.Close()
+	res, err := M.DB.Exec(sqlStr, colValues...)
+	defer M.DB.Close()
 	return res, err
 }
 
@@ -71,9 +71,6 @@ func (M *Model) QuoteUpdateFields(v interface{}) (string, []interface{}) {
 			placeholders = append(placeholders, sqlStr)
 		}
 	}
-	fmt.Println("----placeholders", placeholders)
-	fmt.Println("----updateValues", updateValues)
-
 	colNameString := strings.Join(placeholders, ", ")
 	return colNameString, updateValues
 }
@@ -88,11 +85,11 @@ func clearTransaction(tx *sql.Tx) error {
 }
 
 func (M *Model) Transaction(transaction []Transaction) error {
-	tx, err := M.db.Begin()
+	tx, err := M.DB.Begin()
 	if err != nil {
 		return err
 	}
-	defer M.db.Close()
+	defer M.DB.Close()
 	defer clearTransaction(tx)
 	for _, t := range transaction {
 		stmt, err := tx.Prepare(t.Sql)
@@ -110,4 +107,61 @@ func (M *Model) Transaction(transaction []Transaction) error {
 		return err
 	}
 	return nil
+}
+
+/**
+  rows, err := db.Query("SELECT ...")
+  ...
+  defer rows.Close()
+  for rows.Next() {
+	  // 定义的接收值的变量
+      var id int
+	  var name string
+	  // 用地址接收值
+      err = rows.Scan(&id, &name)
+      ...
+  }
+  err = rows.Err() // get any error encountered during iteration
+  ...
+*/
+
+func (M *Model) Query(sql string, params []interface{}) (map[int]map[string]string, error) {
+	//1.查询数据，取字段
+	rows2, err := M.DB.Query(sql, params...)
+	if err != nil {
+		return nil, err
+	}
+	//2.返回所有列的名字 []string
+	cols, err := rows2.Columns()
+	if err != nil {
+		return nil, err
+	}
+	//3.一行中所有列的值，用[]byte表示
+	vals := make([][]byte, len(cols))
+	//4.获取这一行中所有列的值的地址，并写入到scans中
+	scans := make([]interface{}, len(cols))
+	for k, _ := range vals {
+		scans[k] = &vals[k]
+	}
+
+	i := 0
+	result := make(map[int]map[string]string)
+	for rows2.Next() {
+		//填充数据 Query的结果是Rows，方法func (rs *Rows) Scan(dest ...interface{}) error
+		//5.将结果填入到scans中的地址上
+		rows2.Scan(scans...)
+		//6.定义每行数据的格式
+		row := make(map[string]string)
+		//把vals中的数据复制到row中
+		for k, v := range vals {
+			key := cols[k]
+			//这里把[]byte数据转成string
+			row[key] = string(v)
+		}
+		//放入结果集
+		result[i] = row
+		i++
+	}
+	fmt.Printf("%+v", result)
+	return result, nil
 }

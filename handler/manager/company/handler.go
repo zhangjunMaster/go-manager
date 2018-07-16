@@ -8,6 +8,7 @@ import (
 	"go-manager/handler/manager/license"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	mux "github.com/julienschmidt/httprouter"
@@ -111,6 +112,11 @@ func Update(w http.ResponseWriter, r *http.Request, _ mux.Params) {
 	handler.HandleOk(w, company)
 }
 
-func GetDeployment(w http.ResponseWriter, r *http.Request, _ mux.Params) {
+func GetDeployment(w http.ResponseWriter, r *http.Request, params mux.Params) {
+	domainName := params.ByName("domainName")
+	rows, err := db.Query("select id, name from users where id = ?", 1)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }

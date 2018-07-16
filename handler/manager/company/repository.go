@@ -85,9 +85,6 @@ func UpdateCompany(companyData CompanyModel, adminData admin.AdminModel, license
 	companySqlStr := fmt.Sprintf("UPDATE `company` SET %v", companyColNames)
 	adminSqlStr := fmt.Sprintf("UPDATE `admin` SET %v", adminColNames)
 	licenseSqlStr := fmt.Sprintf("UPDATE `license` SET %v", licenseColNames)
-	fmt.Println("-----companySqlStr----:\n", companySqlStr)
-	fmt.Println("-----adminSqlStr----:\n", adminSqlStr)
-	fmt.Println("-----licenseSqlStr----:\n", licenseSqlStr)
 	if len(companyColValues) > 0 {
 		companyTransaction := model.Transaction{Sql: companySqlStr, Values: companyColValues}
 		transactions = append(transactions, companyTransaction)
@@ -100,11 +97,16 @@ func UpdateCompany(companyData CompanyModel, adminData admin.AdminModel, license
 		licenseTransaction := model.Transaction{Sql: licenseSqlStr, Values: licenseColValues}
 		transactions = append(transactions, licenseTransaction)
 	}
-	fmt.Println("-----transactions:", transactions)
 	err := mdb.Transaction(transactions)
 	if err != nil {
 		return nil, err
 	} else {
 		return nil, nil
 	}
+}
+
+func GetDeploymentOfcomapny(domainName string) {
+	var mdb = companyModel.Open()
+	mdb.db
+
 }

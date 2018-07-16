@@ -1,41 +1,45 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"reflect"
-	"time"
+	"go-manager/model"
 )
-
-const (
-	tableName   = "company"
-	timeFormart = "2006-01-02 15:04:05"
-)
-
-type JsonTime time.Time
-
-func (t *JsonTime) UnmarshalJSON(data []byte) (err error) {
-	now, err := time.ParseInLocation(`"`+timeFormart+`"`, string(data), time.Local)
-	fmt.Println("---------t:", now)
-	*t = JsonTime(now)
-	fmt.Println("---------t:", JsonTime(now))
-	fmt.Println("---------t:", reflect.TypeOf(time.Time(*t).Format("2006-01-02 15:04:05")).String())
-	return err
-}
-
-type User struct {
-	Name     string   `json:"name"`
-	Age      int      `json:"age"`
-	Birthday JsonTime `json:"birthday"`
-}
 
 func main() {
-	src := `{"Name":"5", "Age":12,"Birthday":"2016-06-30 16:09:51"}`
-	p := new(User)
-	err := json.Unmarshal([]byte(src), p)
-	if err != nil {
-		fmt.Println(err)
-		return
+	var companyModel = model.Model{TableName: "company"}
+	var mdb = companyModel.Open()
+
+	rows2, _ := mdb.DB.Query("select * from company")
+	//返回所有列的名字[]string,列名是字符串
+	cols, _ := rows2.Columns()
+	//这里表示一行所有列的值，用[]byte表示
+	vals := make([][]byte, len(cols))
+	//这里表示一行填充数据，scans是一个slice
+	//长度是列的个数
+	scans := make([]interface{}, len(cols))
+	//这里scans是列名的地址
+	for k, _ := range vals {
+		scans[k] = &vals[k]
 	}
-	fmt.Printf("%+v", time.Time(p.Birthday))
+	fmt.Println("--scans:", scans)
+	i := 0
+	var result []map[string]string
+	for rows2.Next() {
+		//填充数据 Query的结果是Rows，方法func (rs *Rows) Scan(dest ...interface{}) error
+		//将结果填入到scans中,scans中的是指针，取得是vals中的指针
+		rows2.Scan(scans...)
+		fmt.Println("----scans:", &scans[0])
+		//每行数据
+		row := make(map[string]string)
+		//把vals中的数据复制到row中
+		for k, v := range vals {
+			key := cols[k]
+			//这里把[]byte数据转成string
+			row[key] = string(v)
+		}
+		//放入结果集
+		result = append(result, row)
+		i++
+	}
+	fmt.Printf("%+v", result)
 }
