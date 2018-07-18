@@ -105,8 +105,15 @@ func UpdateCompany(companyData CompanyModel, adminData admin.AdminModel, license
 	}
 }
 
-func GetDeploymentOfcomapny(domainName string) {
+func GetDeploymentOfcomapny(domainName string) (map[int]map[string]string, error) {
 	var mdb = companyModel.Open()
-	mdb.db
-
+	params := []interface{}{domainName}
+	sqlStr := `
+		  SELECT id, name, domain_name AS domainName, manager_server AS managerServer,
+		  is_private_development AS isPrivateDevelopment,edition,type,original_manager_server AS originalManagerServer
+		  FROM company 
+		  	   WHERE domain_name = ?
+		  `
+	rows, err := mdb.Query(sqlStr, params)
+	return rows, err
 }

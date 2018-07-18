@@ -47,3 +47,7 @@ func LicenseToEntity(license license.LicenseModel) license.LicenseModel {
 	license.Last_update = lib.JsonTime(time.Now())
 	return license
 }
+
+func CompanyToModel(map[string]string) {
+
+}

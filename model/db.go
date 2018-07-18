@@ -109,22 +109,6 @@ func (M *Model) Transaction(transaction []Transaction) error {
 	return nil
 }
 
-/**
-  rows, err := db.Query("SELECT ...")
-  ...
-  defer rows.Close()
-  for rows.Next() {
-	  // 定义的接收值的变量
-      var id int
-	  var name string
-	  // 用地址接收值
-      err = rows.Scan(&id, &name)
-      ...
-  }
-  err = rows.Err() // get any error encountered during iteration
-  ...
-*/
-
 func (M *Model) Query(sql string, params []interface{}) (map[int]map[string]string, error) {
 	//1.查询数据，取字段
 	rows2, err := M.DB.Query(sql, params...)
