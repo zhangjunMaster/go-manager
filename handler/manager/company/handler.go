@@ -2,18 +2,15 @@ package company
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-manager/handler"
 	"go-manager/handler/manager/admin"
 	"go-manager/handler/manager/license"
 	"io"
 	"io/ioutil"
 	"net/http"
-
-	mux "github.com/julienschmidt/httprouter"
 )
 
-func Create(w http.ResponseWriter, r *http.Request, _ mux.Params) {
+func Create(w http.ResponseWriter, r *http.Request) {
 	var company CompanyModel
 	var admin admin.AdminModel
 	var license license.LicenseModel
@@ -52,7 +49,7 @@ func Create(w http.ResponseWriter, r *http.Request, _ mux.Params) {
 	license = LicenseToEntity(license)
 	license.Company_id = company.ID
 	//user.Birthday = time.Now()
-	fmt.Printf("%+v", company)
+	//fmt.Printf("%+v", company)
 	_, err = CreateCompany(company, admin, license)
 	if err != nil {
 		statusError := handler.StatusError{Code: 500, Err: err}
@@ -62,7 +59,7 @@ func Create(w http.ResponseWriter, r *http.Request, _ mux.Params) {
 	handler.HandleOk(w, company)
 }
 
-func Update(w http.ResponseWriter, r *http.Request, _ mux.Params) {
+func Update(w http.ResponseWriter, r *http.Request) {
 	var company CompanyModel
 	var admin admin.AdminModel
 	var license license.LicenseModel
@@ -111,10 +108,10 @@ func Update(w http.ResponseWriter, r *http.Request, _ mux.Params) {
 	handler.HandleOk(w, company)
 }
 
-func GetDeployment(w http.ResponseWriter, r *http.Request, _ mux.Params) {
+func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	domainName := params["domainName"][0]
-	fmt.Println("r:", r)
+	//fmt.Println("r:", r)
 	rows, err := GetDeploymentOfcomapny(domainName)
 	if err != nil {
 		statusError := handler.StatusError{Code: 500, Err: err}

@@ -2,6 +2,7 @@ package lib
 
 import (
 	"crypto/md5"
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"reflect"
@@ -84,4 +85,19 @@ func Md5Salt(s string) string {
 	st := h.Sum(nil)
 	// 16进制转成字符串
 	return hex.EncodeToString(st)
+}
+
+func DecodeBase64(encodeString string) (string, error) {
+	decodeBytes, err := base64.StdEncoding.DecodeString(encodeString)
+	if err != nil {
+		return "", err
+	}
+	decodeStrig := string(decodeBytes)
+	return decodeStrig, nil
+}
+
+func EncodeBase64(s string) (string, error) {
+	input := []byte(s)
+	encodeString := base64.StdEncoding.EncodeToString(input)
+	return encodeString, nil
 }

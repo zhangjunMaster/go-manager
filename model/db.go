@@ -146,6 +146,6 @@ func (M *Model) Query(sql string, params []interface{}) (map[int]map[string]stri
 		result[i] = row
 		i++
 	}
-	fmt.Printf("%+v", result)
+	//fmt.Printf("%+v", result)
 	return result, nil
 }

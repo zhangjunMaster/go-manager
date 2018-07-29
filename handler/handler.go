@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -32,7 +31,6 @@ func (se StatusError) ErrJson() {
 //错误处理
 func (se StatusError) HandleError(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	fmt.Println("-------", se.Error())
 	//http.Error(w, se.Error(), se.Status())
 	if err := json.NewEncoder(w).Encode(se); err != nil {
 		panic(err)
@@ -42,7 +40,6 @@ func (se StatusError) HandleError(w http.ResponseWriter) {
 }
 
 //正确返回
-
 func HandleOk(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	//http.Error(w, se.Error(), se.Status())

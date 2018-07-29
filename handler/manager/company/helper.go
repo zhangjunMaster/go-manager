@@ -13,7 +13,7 @@ import (
 func CompanyToEntity(company CompanyModel) CompanyModel {
 	if company.ID == "" {
 		uid := uuid.Must(uuid.NewV4())
-		fmt.Println("uid:", fmt.Sprintf("%s", uid))
+		//fmt.Println("uid:", fmt.Sprintf("%s", uid))
 		company.ID = fmt.Sprintf("%s", uid)
 	}
 	company.Create_date = lib.JsonTime(time.Now())
@@ -25,7 +25,7 @@ func CompanyToEntity(company CompanyModel) CompanyModel {
 func AdminToEntity(admin admin.AdminModel) admin.AdminModel {
 	if admin.ID == "" {
 		uid := uuid.Must(uuid.NewV4())
-		fmt.Println("uid:", fmt.Sprintf("%s", uid))
+		//fmt.Println("uid:", fmt.Sprintf("%s", uid))
 		admin.ID = fmt.Sprintf("%s", uid)
 	}
 	admin.Unlock_time = lib.JsonTime(time.Now())
@@ -37,8 +37,8 @@ func AdminToEntity(admin admin.AdminModel) admin.AdminModel {
 	} else {
 		admin.Password = lib.Md5Salt(admin.Password)
 	}
-	fmt.Println("-----admin-----")
-	fmt.Printf("%+v", admin)
+	//fmt.Println("-----admin-----")
+	//fmt.Printf("%+v", admin)
 	return admin
 }
 
