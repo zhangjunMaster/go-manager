@@ -16,8 +16,12 @@ type ManagerRouter struct {
 
 func (mr *ManagerRouter) Route(method string, path string, handlerFunc http.HandlerFunc) {
 	sourceHandler := http.HandlerFunc(handlerFunc)
+	// 日志
 	logHandler := middleware.LogHandler(sourceHandler)
-	loginHandler := middleware.LogginHandler(logHandler)
+	// 设置cookie
+	SetCookieHandler := middleware.SetCookieHandler(logHandler)
+	// 登录
+	loginHandler := middleware.LoginHandler(SetCookieHandler)
 	mr.router.Handler(method, path, loginHandler)
 }
 
