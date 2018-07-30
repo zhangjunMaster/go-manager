@@ -43,7 +43,10 @@ func (se StatusError) HandleError(w http.ResponseWriter) {
 func HandleOk(w http.ResponseWriter, v interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	//http.Error(w, se.Error(), se.Status())
-	if err := json.NewEncoder(w).Encode(v); err != nil {
+	data := make(map[string]interface{})
+	data["errCode"] = "0"
+	data["data"] = v
+	if err := json.NewEncoder(w).Encode(data); err != nil {
 		panic(err)
 	}
 }
