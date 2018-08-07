@@ -52,9 +52,13 @@ var companyModel = model.Model{TableName: "company"}
 func CreateCompany(companyData CompanyModel, adminData admin.AdminModel, licenseData license.LicenseModel) (sql.Result, error) {
 	var mdb = companyModel.Open()
 	var transactions []model.Transaction
+
+	topDepartment := TopdepartmentToEntity(companyData)
 	companyColNames, companyPlaceholders, companyColValues := lib.Quote(companyData)
 	adminColNames, adminPlaceholders, adminColValues := lib.Quote(adminData)
 	licenseColNames, licensePlaceholders, licenseColValues := lib.Quote(licenseData)
+	dColNames, dPlaceholders, dColValues := lib.Quote(topDepartment)
+
 	companySqlStr := fmt.Sprintf("INSERT INTO `company` (%v) VALUES (%v)",
 		strings.Join(companyColNames, ", "),
 		strings.Join(companyPlaceholders, ", "))
@@ -64,10 +68,16 @@ func CreateCompany(companyData CompanyModel, adminData admin.AdminModel, license
 	licenseSqlStr := fmt.Sprintf("INSERT INTO `license` (%v) VALUES (%v)",
 		strings.Join(licenseColNames, ", "),
 		strings.Join(licensePlaceholders, ", "))
+	departmentSqlStr := fmt.Sprintf("INSERT INTO `department` (%v) VALUES (%v)",
+		strings.Join(dColNames, ", "),
+		strings.Join(dPlaceholders, ", "))
+
 	companyTransaction := model.Transaction{Sql: companySqlStr, Values: companyColValues}
 	adminTransaction := model.Transaction{Sql: adminSqlStr, Values: adminColValues}
 	licenseTransaction := model.Transaction{Sql: licenseSqlStr, Values: licenseColValues}
-	transactions = append(transactions, companyTransaction, adminTransaction, licenseTransaction)
+	departmentTransaction := model.Transaction{Sql: departmentSqlStr, Values: dColValues}
+
+	transactions = append(transactions, companyTransaction, adminTransaction, licenseTransaction, departmentTransaction)
 	err := mdb.Transaction(transactions)
 	if err != nil {
 		return nil, err

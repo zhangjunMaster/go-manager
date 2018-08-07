@@ -14,6 +14,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	var company CompanyModel
 	var admin admin.AdminModel
 	var license license.LicenseModel
+	//var department department.DepartmentModel
 	//将信息读取到[]byte 中
 	//r.Body->io.ReadCloser类型   io.LimitReader(r Reader) => Reader  ioutil.ReadAll=> []byte
 	body, err := ioutil.ReadAll(io.LimitReader(r.Body, 1048576))

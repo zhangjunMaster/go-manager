@@ -120,7 +120,9 @@ func (M *Model) Query(sql string, params []interface{}) (map[int]map[string]stri
 	if err != nil {
 		return nil, err
 	}
-	//3.一行中所有列的值，用[]byte表示
+	//3.一行中所有列的值，用[]byte表示,[[]byte,[]byte,[]byte]
+	//以下的for遍历是向vals写入查询的一条数据，怎么写入呢？借助地址
+	//rows2.Scan(scans...) 参数是vals中的每一个[]byte的地址
 	vals := make([][]byte, len(cols))
 	//4.获取这一行中所有列的值的地址，并写入到scans中
 	scans := make([]interface{}, len(cols))
@@ -132,7 +134,7 @@ func (M *Model) Query(sql string, params []interface{}) (map[int]map[string]stri
 	result := make(map[int]map[string]string)
 	for rows2.Next() {
 		//填充数据 Query的结果是Rows，方法func (rs *Rows) Scan(dest ...interface{}) error
-		//5.将结果填入到scans中的地址上
+		//5.将rows2遍历的结果填入到scans中的地址上()
 		rows2.Scan(scans...)
 		//6.定义每行数据的格式
 		row := make(map[string]string)

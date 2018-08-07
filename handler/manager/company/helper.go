@@ -3,6 +3,7 @@ package company
 import (
 	"fmt"
 	"go-manager/handler/manager/admin"
+	"go-manager/handler/manager/department"
 	"go-manager/handler/manager/license"
 	"go-manager/lib"
 	"time"
@@ -48,6 +49,23 @@ func LicenseToEntity(license license.LicenseModel) license.LicenseModel {
 	return license
 }
 
+func TopdepartmentToEntity(company CompanyModel) department.DepartmentModel {
+	uid := uuid.Must(uuid.NewV4())
+	d := department.DepartmentModel{
+		ID:                       fmt.Sprintf("%s", uid),
+		Company_id:               company.ID,
+		Name:                     company.Name,
+		Parent_department_id:     "0",
+		Source:                   1,
+		Is_im_group_created:      1,
+		Full_department_id:       "0/" + fmt.Sprintf("%s", uid),
+		User_device_num:          3,
+		Is_limit_user_device_num: 1,
+		Create_date:              lib.JsonTime(time.Now()),
+		Last_update:              lib.JsonTime(time.Now()),
+	}
+	return d
+}
 func CompanyToModel(map[string]string) {
 
 }
