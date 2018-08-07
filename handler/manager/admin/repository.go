@@ -28,11 +28,12 @@ func Get(username string, password string) (map[int]map[string]string, error) {
 	var mdb = adminModel.Open()
 	params := []interface{}{username, password}
 	sqlStr := `
-			SELECT t1.*, t2.is_private_development, t2.edition, t2.domain_name FROM admin AS t1
-			INNER JOIN company AS t2
-			WHERE t1.is_locked = 0 AND t1.is_deleted = 0
-			AND t1.login_name = ? 
-			AND t1.password = ?
+			SELECT a.*, c.is_private_development, c.edition, c.domain_name, l.*
+			FROM admin AS a INNER JOIN company AS c ON a.company_id = c.id 
+			INNER JOIN license AS l ON a.company_id = l.company_id
+			WHERE a.is_locked = 0 AND a.is_deleted = 0
+			AND a.login_name = ? 
+			AND a.password = ?
 		   `
 	rows, err := mdb.Query(sqlStr, params)
 	return rows, err
