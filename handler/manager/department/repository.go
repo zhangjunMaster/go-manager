@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"go-manager/lib"
 	"go-manager/model"
+	"strconv"
 )
 
 const (
@@ -65,5 +66,43 @@ func GetAllModel(companyId string) (map[int]map[string]string, error) {
 	return rows, err
 }
 
-func GetChildrenModel(departmentId string, condition string, count string, start string) {}
-func CalculateUCountByDId(departmentIds []map[int]string)                                {}
+func GetChildrenModel(companyId string, departmentId string, condition string, c string, start string) (map[string]interface{}, error) {
+	var mdb = departmentModel.Open()
+	var result map[string]interface{}
+	count, _ := strconv.Atoi(c)
+	begin, _ := strconv.Atoi(start)
+	begin = (begin - 1) * count
+	departmentName := condition
+	params := []interface{}{companyId, departmentId}
+	countParams := []interface{}{companyId, departmentId}
+	queryChildrenDepartSql := `
+                         SELECT t1.*
+                         FROM department t1
+                         WHERE t1.company_id = ?
+                         AND t1.parent_department_id = ?
+                         `
+	if departmentName != "" {
+		queryChildrenDepartSql += `AND t1.name LIKE "%${departmentName}%"`
+	}
+	queryChildrenDepartSql += ` 
+							  ORDER BY t1.create_date DESC limit ?,?
+							  `
+	params = append(params, start, count)
+
+	countQuerySql := `
+                     SELECT COUNT(*) AS total FROM department t1
+                     WHERE t1.company_id = ?
+                     AND t1.parent_department_id = ?
+					 `
+	if departmentName != "" {
+		countQuerySql += `AND t1.name LIKE "%${departmentName}%"`
+	}
+	rows, err := mdb.Query(queryChildrenDepartSql, params)
+	//length := len(rows)
+	countRows, err := mdb.Query(countQuerySql, countParams)
+	result["total"] = countRows[0]
+	result["start"] = start
+	result["data"] = rows
+	return result, err
+}
+func CalculateUCountByDId(departmentIds []map[int]string) {}

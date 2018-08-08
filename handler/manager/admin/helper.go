@@ -30,6 +30,7 @@ func AdminToModel(source map[string]string) map[string]interface{} {
 	target["isLocked"] = 0
 	target["is_deleted"] = 0
 	license["isValid"] = source["is_valid"]
+	license["companyId"] = source["company_id"]
 	license["licenseNumber"] = source["license_number"]
 	license["startTime"] = source["start_time"]
 	license["expirationTime"] = source["expiration_time"]

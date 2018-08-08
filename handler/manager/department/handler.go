@@ -2,7 +2,6 @@ package department
 
 import (
 	"encoding/json"
-	"fmt"
 	"go-manager/handler"
 	"io"
 	"io/ioutil"
@@ -41,11 +40,7 @@ func Delete(w http.ResponseWriter, r *http.Request) {}
 func Update(w http.ResponseWriter, r *http.Request) {}
 func GetAllDepartments(w http.ResponseWriter, r *http.Request) {
 	vars := r.URL.Query()
-	var companyId string
-	//companyId := vars["companyId"]
-	if len(vars) == 0 {
-		companyId = "a3c69b85-6745-436e-a1c1-f99d42e6f0eb"
-	}
+	companyId := vars["companyId"][0]
 	rows, err := GetAllModel(companyId)
 	if err != nil {
 		statusError := handler.StatusError{Code: 500, Err: err}
@@ -64,18 +59,16 @@ func GetAllDepartments(w http.ResponseWriter, r *http.Request) {
 func GetOneDepartment(w http.ResponseWriter, r *http.Request) {}
 func GetChildrenDepartments(w http.ResponseWriter, r *http.Request) {
 	vars := r.URL.Query()
-
-	var (
-		departmentId string
-		condition    string
-		count        string
-		start        string
-	)
-	if len(vars) > 0 {
-		departmentId = vars["departmentId"][0]
-		condition = vars["condition"][0]
-		count = vars["count"][0]
-		start = vars["start"][0]
+	departmentId := vars["departmentId"][0]
+	condition := vars["condition"][0]
+	count := vars["count"][0]
+	start := vars["start"][0]
+	companyId := vars["companyId"][0]
+	rows, err := GetChildrenModel(companyId, departmentId, condition, count, start)
+	if err != nil {
+		statusError := handler.StatusError{Code: 500, Err: err}
+		statusError.HandleError(w)
+		return
 	}
-	fmt.Println(vars)
+	handler.HandleOk(w, rows)
 }
