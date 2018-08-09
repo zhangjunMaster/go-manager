@@ -2,6 +2,7 @@ package department
 
 import (
 	"database/sql"
+	"fmt"
 	"go-manager/lib"
 	"go-manager/model"
 	"strconv"
@@ -68,7 +69,7 @@ func GetAllModel(companyId string) (map[int]map[string]string, error) {
 
 func GetChildrenModel(companyId string, departmentId string, condition string, c string, start string) (map[string]interface{}, error) {
 	var mdb = departmentModel.Open()
-	var result map[string]interface{}
+	var result = make(map[string]interface{})
 	count, _ := strconv.Atoi(c)
 	begin, _ := strconv.Atoi(start)
 	begin = (begin - 1) * count
@@ -87,7 +88,7 @@ func GetChildrenModel(companyId string, departmentId string, condition string, c
 	queryChildrenDepartSql += ` 
 							  ORDER BY t1.create_date DESC limit ?,?
 							  `
-	params = append(params, start, count)
+	params = append(params, begin, count)
 
 	countQuerySql := `
                      SELECT COUNT(*) AS total FROM department t1
@@ -99,10 +100,32 @@ func GetChildrenModel(companyId string, departmentId string, condition string, c
 	}
 	rows, err := mdb.Query(queryChildrenDepartSql, params)
 	//length := len(rows)
+	fmt.Println("row length:", len(rows))
+	fmt.Printf("%v", queryChildrenDepartSql)
+	fmt.Printf("%v", params)
+
 	countRows, err := mdb.Query(countQuerySql, countParams)
-	result["total"] = countRows[0]
+	result["total"] = countRows[0]["total"]
 	result["start"] = start
 	result["data"] = rows
 	return result, err
 }
 func CalculateUCountByDId(departmentIds []map[int]string) {}
+
+func GetOneModel(ids []string) (map[int]map[string]string, error) {
+	var mdb = departmentModel.Open()
+	params := make([]interface{}, len(ids))
+	//params = copy(params, ids[:])
+	for index, v := range ids {
+		params[index] = v
+	}
+	sql := `
+			SELECT * FROM department
+			WHERE id IN (?)
+			ORDER BY create_date
+			`
+	fmt.Println(sql)
+	fmt.Println(params)
+	rows, err := mdb.Query(sql, params)
+	return rows, err
+}

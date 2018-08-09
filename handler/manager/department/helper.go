@@ -3,6 +3,7 @@ package department
 import (
 	"fmt"
 	"go-manager/lib"
+	"strings"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -59,4 +60,13 @@ func CreateTree(departments []map[string]interface{}, pid string) []map[string]i
 	}
 	result := fn(departments, pid)
 	return result
+}
+
+func CreatFullDepartmentName(departments map[int]map[string]string) string {
+	fullDepartmentName := ""
+	for index, v := range departments {
+		fullDepartmentName += (v["name"] + "/")
+	}
+	fullDepartmentName = strings.Replace(fullDepartmentName, `\/$`, "", 1)
+	return fullDepartmentName
 }

@@ -2,10 +2,12 @@ package department
 
 import (
 	"encoding/json"
+	"fmt"
 	"go-manager/handler"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 func Create(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +58,42 @@ func GetAllDepartments(w http.ResponseWriter, r *http.Request) {
 	results = CreateTree(results, "0")
 	handler.HandleOk(w, results)
 }
-func GetOneDepartment(w http.ResponseWriter, r *http.Request) {}
+
+// get one department
+func GetOneDepartment(w http.ResponseWriter, r *http.Request) {
+	vars := r.URL.Query()
+	id := vars["id"][0]
+	ids := []string{id}
+	rows, err := GetOneModel(ids)
+	if err != nil {
+		fmt.Println(err)
+		statusError := handler.StatusError{Code: 500, Err: err}
+		statusError.HandleError(w)
+		return
+	}
+	data := DepartToModel(rows[0])
+
+	if data["parentDepartmentId"] == "0" {
+		data["fullDepartmentName"] = data["name"]
+		handler.HandleOk(w, data)
+		return
+	} else {
+		fullDepartmentId := data["fullDepartmentId"].(string)
+		ids := strings.Split(fullDepartmentId, "/")
+		rows, err := GetOneModel(ids)
+		if err != nil {
+			fmt.Println(err)
+			statusError := handler.StatusError{Code: 500, Err: err}
+			statusError.HandleError(w)
+			return
+		}
+		data["fullDepartmentName"] = CreatFullDepartmentName(rows)
+	}
+
+	handler.HandleOk(w, data)
+}
+
+// get children department
 func GetChildrenDepartments(w http.ResponseWriter, r *http.Request) {
 	vars := r.URL.Query()
 	departmentId := vars["departmentId"][0]
@@ -64,11 +101,22 @@ func GetChildrenDepartments(w http.ResponseWriter, r *http.Request) {
 	count := vars["count"][0]
 	start := vars["start"][0]
 	companyId := vars["companyId"][0]
-	rows, err := GetChildrenModel(companyId, departmentId, condition, count, start)
+	result, err := GetChildrenModel(companyId, departmentId, condition, count, start)
+	rows := result["data"].(map[int]map[string]string)
+	fmt.Println("------rows:", len(rows))
+	results := make([]map[string]interface{}, len(rows))
+	for index, value := range rows {
+		fmt.Printf("%v", value)
+		if value != nil {
+			results[index] = DepartToModel(value)
+		}
+	}
+	result["departments"] = results
+	delete(result, "data")
 	if err != nil {
 		statusError := handler.StatusError{Code: 500, Err: err}
 		statusError.HandleError(w)
 		return
 	}
-	handler.HandleOk(w, rows)
+	handler.HandleOk(w, result)
 }
