@@ -119,11 +119,13 @@ func GetOneModel(ids []string) (map[int]map[string]string, error) {
 	for index, v := range ids {
 		params[index] = v
 	}
+	s := lib.RepeatQueryParams(len(ids))
 	sql := `
 			SELECT * FROM department
-			WHERE id IN (?)
+			WHERE id IN (%s) 
 			ORDER BY create_date
 			`
+	sql = fmt.Sprintf(sql, s)
 	fmt.Println(sql)
 	fmt.Println(params)
 	rows, err := mdb.Query(sql, params)

@@ -64,7 +64,7 @@ func CreateTree(departments []map[string]interface{}, pid string) []map[string]i
 
 func CreatFullDepartmentName(departments map[int]map[string]string) string {
 	fullDepartmentName := ""
-	for index, v := range departments {
+	for _, v := range departments {
 		fullDepartmentName += (v["name"] + "/")
 	}
 	fullDepartmentName = strings.Replace(fullDepartmentName, `\/$`, "", 1)

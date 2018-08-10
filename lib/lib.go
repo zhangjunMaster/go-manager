@@ -101,3 +101,8 @@ func EncodeBase64(s string) (string, error) {
 	encodeString := base64.StdEncoding.EncodeToString(input)
 	return encodeString, nil
 }
+
+func RepeatQueryParams(count int) string {
+	strings := "?" + strings.Repeat(",?", count-1)
+	return strings
+}
