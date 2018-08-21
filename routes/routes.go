@@ -5,6 +5,7 @@ import (
 	"go-manager/handler/manager/company"
 	"go-manager/handler/manager/dashbord"
 	"go-manager/handler/manager/department"
+	"go-manager/handler/manager/user"
 	"go-manager/middleware"
 	"net/http"
 
@@ -44,6 +45,17 @@ func NewRouter() *mux.Router {
 	mr.Route("GET", "/manager/dashboard/:id/os", dashbord.GetOSOfPCData)
 	mr.Route("GET", "/manager/dashboard/:id/user/online", dashbord.GetOnlineUserData)
 	// user
+	mr.Route("POST", "/manager/user", user.Create)
+	mr.Route("DELETE", "/manager/user", user.Delete)
+	mr.Route("PUT", "/manager/user", user.Update)
+	mr.Route("GET", "/manager/user/all", user.GetAllUsers)
+	mr.Route("GET", "/manager/user/baseinfo/:id", user.GetOneUser)
+	mr.Route("GET", "/manager/user/strategies/all/:id", user.GetAllStrategies)
+	mr.Route("GET", "/manager/user/strategies/active", user.GetActiveStrategy)
+	mr.Route("GET", "/manager/user/application", user.GetApplications)
+	mr.Route("GET", "/manager/user/devices/:id", user.GetDevices)
+	mr.Route("PUT", "/manager/user/password", user.ChangePwd)
+	mr.Route("POST", "/manager/user/active", user.Active)
 	// department
 	mr.Route("POST", "/manager/department", department.Create)
 	mr.Route("DELETE", "/manager/department", department.Delete)
@@ -51,5 +63,6 @@ func NewRouter() *mux.Router {
 	mr.Route("GET", "/manager/department/all", department.GetAllDepartments)
 	mr.Route("GET", "/manager/department/one", department.GetOneDepartment)
 	mr.Route("GET", "/manager/department/portion", department.GetChildrenDepartments)
+
 	return mr.router
 }

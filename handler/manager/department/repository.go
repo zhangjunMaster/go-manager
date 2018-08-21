@@ -17,19 +17,17 @@ const (
 type DepartmentModel struct {
 	ID                       string       `json:"id"`
 	Company_id               string       `json:"companyId"`
-	Department_id            string       `json:"name"`
-	Name                     string       `json:"domainName"`
-	Description              string       `json:"managerServer"`
-	Parent_department_id     string       `json:"isPrivateDevelopment"`
-	Source                   int          `json:"edition"`
-	Is_im_group_created      int          `json:"type"`
-	Full_department_id       string       `json:"originalManagerServer"`
-	Incremental_operation    int          `json:"isDeleted"`
+	Name                     string       `json:"name"`
+	Description              string       `json:"description"`
+	Parent_department_id     string       `json:"parentDepartmentId"`
+	Source                   int          `json:"source"`
+	Is_im_group_created      int          `json:"isImGroupCreated"`
+	Full_department_id       string       `json:"fullDepartmentId"`
+	Incremental_operation    int          `json:"incrementalOperation"`
 	User_device_num          int          `json:"userDeviceNum"`
 	Is_limit_user_device_num int          `json:"isLimitUserDeviceNum"`
 	Create_date              lib.JsonTime `json:"createDate"`
 	Last_update              lib.JsonTime `json:"lastUpdate"`
-	Create_date_at_hub       lib.JsonTime `json:"createDateAtHub"`
 }
 
 var departmentModel = model.Model{TableName: tableName}

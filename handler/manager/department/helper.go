@@ -67,6 +67,7 @@ func CreatFullDepartmentName(departments map[int]map[string]string) string {
 	for _, v := range departments {
 		fullDepartmentName += (v["name"] + "/")
 	}
-	fullDepartmentName = strings.Replace(fullDepartmentName, `\/$`, "", 1)
+	fmt.Println("------fullDepartmentName:", fullDepartmentName)
+	fullDepartmentName = strings.TrimRight(fullDepartmentName, "/")
 	return fullDepartmentName
 }

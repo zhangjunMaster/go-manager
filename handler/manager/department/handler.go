@@ -30,7 +30,13 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	department = DepartmentToEntity(department)
+
+	ids := []string{department.Parent_department_id}
+	rows, _ := GetOneModel(ids)
+	department.Full_department_id = rows[0]["full_department_id"] + "/" + department.ID
+	fmt.Printf("%v", department)
 	_, err = CreateDepartment(department)
+
 	if err != nil {
 		statusError := handler.StatusError{Code: 500, Err: err}
 		statusError.HandleError(w)
